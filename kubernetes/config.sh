@@ -1,0 +1,4 @@
+RESOURCE_GROUP=rg-brunoborges-default
+SUBSCRIPTION=f6a5db76-bbad-42ca-8a48-2e06ad6676ae
+AKS_CLUSTER_NAME=javaland
+AKS_CLUSTER_ADMIN=true

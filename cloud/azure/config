@@ -1,7 +1,9 @@
-RESOURCE_GROUP=brborges
-ACR_NAME=brborgesacr
-AKS_NAME=brborgesaks
-AKS_NODE_COUNT=1
-AKS_NODE_VM_SIZE=Standard_B2s
-AKS_NODE_DISK_SIZE=30
-AKS_SERVICE_PRINCIPAL_NAME=brborgesaksServicePrincipal
+#!/bin/sh
+export RESOURCE_GROUP=rg-brunoborges-default
+export ACR_NAME=javaland
+export AKS_NAME=javaland
+export AKS_NODE_COUNT=8
+export AKS_NODE_VM_SIZE=Standard_B2s
+export AKS_NODE_DISK_SIZE=30
+
+az configure --defaults group=$RESOURCE_GROUP

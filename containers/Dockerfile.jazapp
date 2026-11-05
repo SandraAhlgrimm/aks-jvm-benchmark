@@ -1,0 +1,19 @@
+# Build layer
+FROM mcr.microsoft.com/openjdk/jdk:25-ubuntu AS maven_build
+
+    COPY pom.xml /tmp/
+    COPY src /tmp/src/
+    COPY mvnw /tmp/mvnw
+    COPY .mvn /tmp/.mvn
+
+    WORKDIR /tmp/
+
+    RUN ./mvnw package && \
+        mkdir /staging
+
+# Runtime image
+FROM mcr.microsoft.com/openjdk/jdk:25-ubuntu
+
+    COPY --from=maven_build /tmp/target/*.jar /example.jar
+
+    CMD ["jaz", "-jar", "/example.jar"]

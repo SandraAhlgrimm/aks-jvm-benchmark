@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleapp-g1gc
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sampleapp
+      version: g1gc
+  template:
+    metadata:
+      labels:
+        app: sampleapp
+        version: g1gc
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: sampleapp-g1gc
+        image: javaland.azurecr.io/sampleapp:latest
+        imagePullPolicy: Always
+        env:
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          value: "InstrumentationKey=14db92fb-5216-4dd2-b597-c41ea6aa43b3;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=b389c5b9-7434-46a1-b454-c891aa2913ff"
+        - name: APPLICATIONINSIGHTS_ROLE_NAME
+          value: "G1GC"
+        - name: APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED
+          value: "true"
+        - name: JDK_JAVA_OPTIONS
+          value: "-XX:+UseG1GC -XX:MaxRAMPercentage=70"
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-sampleapp-g1gc
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    name: http
+    targetPort: 8080
+  selector:
+    app: sampleapp
+    version: g1gc

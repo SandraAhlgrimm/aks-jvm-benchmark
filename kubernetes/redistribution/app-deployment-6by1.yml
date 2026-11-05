@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleapp-6by1
+spec:
+  strategy: 
+    type: Recreate
+  replicas: 6
+  selector:
+    matchLabels:
+      app: sampleapp
+      version: 6by1
+  template:
+    metadata:
+      labels:
+        app: sampleapp
+        version: 6by1
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: sampleapp-6by1
+        image: javaland.azurecr.io/sampleapp:latest
+        imagePullPolicy: Always
+        env:
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            configMapKeyRef:
+              name: app-insights-config
+              key: connection-string
+        - name: APPLICATIONINSIGHTS_ROLE_NAME
+          value: "6BY1"
+        - name: APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED
+          value: "true"
+        - name: JDK_JAVA_OPTIONS
+          value: "-XX:MaxRAMPercentage=70 -XX:+UseParallelGC"
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "1Gi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-sampleapp-6by1
+  labels: 
+    service: sampleappfront
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    name: http
+    targetPort: 8080
+  selector:
+    app: sampleapp
+    version: 6by1

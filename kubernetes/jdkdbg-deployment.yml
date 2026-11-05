@@ -1,34 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: loadtest
+  name: jdkdbg
   labels:
-    app: loadtest
+    app: jdkdbg
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: loadtest
+      app: jdkdbg
   template:
     metadata:
       labels:
-        app: loadtest
+        app: jdkdbg
     spec:
+      hostPID: true
       nodeSelector:
         "kubernetes.io/os": linux
       containers:
-      - name: loadtest
-        image: aksjvmlabacr.azurecr.io/loadtest:latest
-        ports:
-        - containerPort: 8080
-          name: http
+      - name: jdkdbg
+        image: mcr.microsoft.com/openjdk/jdk:21-ubuntu
+        tty: true
         resources:
           requests:
-            cpu: "6000m"
-            memory: "8Gi"
+            cpu: "500m"
+            memory: "128Mi"
           limits:
-            cpu: "8000m"
-            memory: "8Gi"
+            cpu: "1000m"
+            memory: "128Mi"
         command: [ "/bin/bash", "-c", "--" ]
         args: [ "while true; do sleep 30; done;" ]
-  
+        securityContext:
+          privileged: true
